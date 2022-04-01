@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu&family=Gamja+Flower&display=swap" rel="stylesheet">
+
+    <title>원페이지 쇼핑몰</title>
+
+    <meta property="og:title" content="원페이지쇼핑몰" />
+    <meta property="og:description" content="내가 만든 첫 웹서비스" />
+    <meta property="og:image" content="{{ url_for('static', filename='ogimage.png') }}" />
+
+
+    <style>
+        * {
+            font-family: 'Gaegu', cursive;
+            font-family: 'Gamja Flower', cursive;
+            font-size: 20px;
+        }
+
+        .wrap {
+            width: 500px;
+            margin: auto;
+        }
+
+        .dino {
+            width: 600px;
+            height: 500px;
+            background-image: url("https://yogusajo.com/wp-content/uploads/2020/10/98c6c0d284576a1ef73293ba39cb2144427966edb5c7fcb76b5a07dbb976-1.jpg");
+            background-size: cover;
+        }
+
+        .dinos {
+            width: 600px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .price {
+            font-size: 20px;
+        }
+
+        .order {
+            width: 600px;
+        }
+
+        .btn_order {
+            margin: auto;
+            width: 150px;
+            display: block;
+        }
+
+        .dol {
+            color: blue;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            fnrate();
+            list();
+        });
+
+        function list() {
+            $.ajax({
+                type: "GET",
+                url: "/order",
+                data: {},
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        let orders = response['orders'];
+                        for (let i = 0; i < orders.length; i++) {
+                            let name = orders[i]['name'];
+                            let count = orders[i]['count'];
+                            let address = orders[i]['address'];
+                            let phone = orders[i]['phone'];
+
+                            let temp_html = ` <tr>
+                                                <td>${name}</th>
+                                                <td>${count}</td>
+                                                <td>${address}</td>
+                                                <td>${phone}</td>
+                                            </tr>`
+                            $('#order_list').append(temp_html)
+                        }
+                    }
+                }
+            })
+        }
+        function fnrate() {
+            $.ajax({
+                type: "GET",
+                url: "http://spartacodingclub.shop/sparta_api/rate",
+                data: {},
+                success: function (response) {
+                    let now_rate = response['rate'];
+                    $('#realrate').text(now_rate);
+                }
+            })
+        }
+
+        function order() {
+            let name = $('#order-name').val();
+            let count = $('#inputGroupSelect01').val();
+            let address = $('#order-address').val();
+            let phone = $('#order-phone').val();
+
+            $.ajax({
+                type: "POST",
+                url: "/order",
+                data: {name_give: name, count_give: count, address_give: address, phone_give: phone},
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        alert(response["msg"]);
+                        window.location.reload();
+                    }
+                }
+            })
+        }
+
+    </script>
+
+</head>
+
+<body>
+<div class="wrap">
+    <div class="dino"></div>
+    <div class="dinos">
+        <h1>다이어리를 팝니다 <span class="price">가격:9,000원/개</span></h1>
+        <p>!!귀여운 게 세상을 구한다!! 귀엽고 통통튀는 젤리곰다이어리로 행복한 하루를 마무리 하세요! 우울했던 하루도 젤리곰이 추억으로 만들어 줄 거에요:)</p>
+        <p class="dol">달러-원 환율 : <span id="realrate">0000.00</span></p>
+    </div>
+    <div class="order">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">주문자이름</span>
+            </div>
+            <input id="order-name" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inputGroupSelect01">수량</label>
+            </div>
+            <select class="custom-select" id="inputGroupSelect01">
+                <option selected>-- 수량을 선택하세요 --</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">주소</span>
+            </div>
+            <input id="order-address" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">전화번호</span>
+            </div>
+            <input id="order-phone" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+        </div>
+        <button type="button" onclick="order()" class="btn btn-primary btn_order">주문하기</button>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">이름</th>
+            <th scope="col">수량</th>
+            <th scope="col">주소</th>
+            <th scope="col">전화번호</th>
+        </tr>
+        </thead>
+        <tbody id="order_list">
+
+        </tbody>
+    </table>
+
+</div>
+</body>
+
+</html>
